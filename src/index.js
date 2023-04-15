@@ -28,20 +28,18 @@ const apiSearch = async () => {
   return response;
 };
 
-const fetchPhotos = () => {
+const loadPhotos = () => {
   apiSearch()
     .then(pictures => {
       const totalHits = pictures.data.total;
 
       if (pictures.data.hits.length === 0) throw new Error();
 
-      pictureEl.innerHTML = showPictures(pictures);
+      pictureEl.innerHTML = drawPhoto(pictures);
 
       totalHits > 40
         ? (loadMoreBtn.style.visibility = 'visible')
         : (loadMoreBtn.style.visibility = 'hidden');
-
-      console.log(totalHits);
 
       Notiflix.Notify.info(`Hooray! We found ${totalHits} images.`);
     })
@@ -52,27 +50,19 @@ const fetchPhotos = () => {
     });
 };
 
-const fetchNewPhotos = () => {
-  apiSearch()
-    .then(pictures => {
-      const totalHits = pictures.data.total;
+const loadNewPhotos = () => {
+  apiSearch().then(pictures => {
+    const totalHits = pictures.data.total;
 
-      pictureEl.insertAdjacentHTML('beforeend', showPictures(pictures));
+    pictureEl.insertAdjacentHTML('beforeend', drawPhoto(pictures));
 
-      totalHits / page > 40
-        ? (loadMoreBtn.style.visibility = 'visible')
-        : (loadMoreBtn.style.visibility = 'hidden');
-
-      console.log(totalHits / page);
-    })
-    .catch(error => {
-      Notiflix.Notify.failure(
-        'Sorry, there are no images matching your search query. Please try again.'
-      );
-    });
+    totalHits / page > 40
+      ? (loadMoreBtn.style.visibility = 'visible')
+      : (loadMoreBtn.style.visibility = 'hidden');
+  });
 };
 
-const showPictures = pictures => {
+const drawPhoto = pictures => {
   return (drawPicture = pictures.data.hits
     .map(
       picture =>
@@ -103,16 +93,12 @@ const showPictures = pictures => {
 };
 
 searchButtonEl.addEventListener('click', e => {
-  page = 1;
   e.preventDefault();
-  fetchPhotos();
-
-  console.log('first button', page);
+  page = 1;
+  loadPhotos();
 });
 
 loadMoreBtn.addEventListener('click', () => {
   page++;
-  fetchNewPhotos();
-
-  console.log('second button', page);
+  loadNewPhotos();
 });
