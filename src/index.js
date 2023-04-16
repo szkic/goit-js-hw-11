@@ -63,7 +63,7 @@ const loadNewPhotos = () => {
 };
 
 const drawPhoto = pictures => {
-  return (drawPicture = pictures.data.hits
+  return pictures.data.hits
     .map(
       picture =>
         `
@@ -89,7 +89,7 @@ const drawPhoto = pictures => {
         </div>
     </div>`
     )
-    .join(''));
+    .join('');
 };
 
 searchButtonEl.addEventListener('click', e => {
