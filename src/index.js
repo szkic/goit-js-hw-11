@@ -1,5 +1,8 @@
 import Notiflix from 'notiflix';
 import axios from 'axios';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
+import { drawPhoto } from './createNewPhoto';
 
 const searchInputEl = document.querySelector('#search-form input');
 const searchButtonEl = document.querySelector('#search-form button');
@@ -35,13 +38,15 @@ const loadPhotos = () => {
 
       if (pictures.data.hits.length === 0) throw new Error();
 
-      pictureEl.innerHTML = drawPhoto(pictures);
-
       totalHits > 40
         ? (loadMoreBtn.style.visibility = 'visible')
         : (loadMoreBtn.style.visibility = 'hidden');
 
+      pictureEl.innerHTML = drawPhoto(pictures);
+
       Notiflix.Notify.info(`Hooray! We found ${totalHits} images.`);
+
+      let lightbox = new SimpleLightbox('.gallery a');
     })
     .catch(error => {
       Notiflix.Notify.failure(
@@ -54,42 +59,23 @@ const loadNewPhotos = () => {
   apiSearch().then(pictures => {
     const totalHits = pictures.data.total;
 
-    pictureEl.insertAdjacentHTML('beforeend', drawPhoto(pictures));
-
     totalHits / page > 40
       ? (loadMoreBtn.style.visibility = 'visible')
       : (loadMoreBtn.style.visibility = 'hidden');
-  });
-};
 
-const drawPhoto = pictures => {
-  return pictures.data.hits
-    .map(
-      picture =>
-        `
-    <div class="photo-card border rounded shadow-lg">
-      <img src="${picture.webformatURL}" alt="${picture.tags}" loading="lazy" class="w-80 h-52 object-cover" />
-        <div class="info p-3 text-sm flex justify-between items-center">
-          <p class="info-item flex flex-col text-center">
-            <b>Likes</b>
-            ${picture.likes}
-          </p>
-          <p class="info-item flex flex-col text-center">
-            <b>Views</b>
-            ${picture.views}
-          </p>
-          <p class="info-item flex flex-col text-center">
-            <b>Comments</b>
-            ${picture.comments}
-          </p>
-          <p class="info-item flex flex-col text-center">
-            <b>Downloads</b>
-            ${picture.downloads}
-          </p>
-        </div>
-    </div>`
-    )
-    .join('');
+    pictureEl.insertAdjacentHTML('beforeend', drawPhoto(pictures));
+
+    let lightbox = new SimpleLightbox('.gallery a');
+
+    const { height: cardHeight } = document
+      .querySelector('.gallery')
+      .firstElementChild.getBoundingClientRect();
+
+    window.scrollBy({
+      top: cardHeight * 11,
+      behavior: 'smooth',
+    });
+  });
 };
 
 searchButtonEl.addEventListener('click', e => {
